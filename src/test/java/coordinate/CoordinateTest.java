@@ -2,23 +2,20 @@ package coordinate;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.AssertionsForClassTypes.offset;
 
 public class CoordinateTest {
     @Test
     void 좌표_정보는_괄호로_둘러쌓여있다() {
-        String coordinateString = "(3, 2)";
+        String coordinateString = "(3,2)";
         assertThat(isValidCoordinateString(coordinateString)).isTrue();
     }
 
     @Test
     void 좌표_정보는_쉼표로_구분된다() {
-        String coordinateString = "(3, 2)";
+        String coordinateString = "(3,2)";
         assertThat(isValidCoordinateString(coordinateString)).isTrue();
     }
 
@@ -29,28 +26,17 @@ public class CoordinateTest {
         String coordinateString1 = "(3,2)";
         isValidCoordinateString(coordinateString1);
 
-        coordinateString1 = removeAllBrackets(coordinateString1);
-        String[] coordinates = coordinateString1.split(",");
-
-        for (String coordinate : coordinates) {
-            int coordinateNum = Integer.parseInt(coordinate);
-            assertThat(isValidRange(coordinateNum)).isTrue();
-        }
+        Coordinates coordinates = new Coordinates(coordinateString1);
+        assertThat(coordinates).isInstanceOf(Coordinates.class);
     }
 
     @Test
     void 좌표값_범위를_초과하면_에러를_반환한다() {
         String coordinateString = "(25,26)";
         isValidCoordinateString(coordinateString);
-
-        coordinateString = removeAllBrackets(coordinateString);
-        String[] coordinates = coordinateString.split(",");
-
-        for (String coordinate : coordinates) {
-            int coordinateNum = Integer.parseInt(coordinate);
-            assertThatThrownBy(() -> isValidRange(coordinateNum)).isInstanceOf(IllegalArgumentException.class);
-        }
+        assertThatThrownBy(() -> new Coordinates(coordinateString)).isInstanceOf(IllegalArgumentException.class);
     }
+
 
     @Test
     void 좌표값을_두_개_입력한_경우_두_점을_잇는_직선으로_가정한다() {
@@ -58,7 +44,6 @@ public class CoordinateTest {
 
         isValidCoordinateString(coordinateString);
 
-        coordinateString = removeAllBrackets(coordinateString);
         Coordinates coordinates = new Coordinates(coordinateString);
         assertThat(coordinates.isStraight()).isTrue();
     }
@@ -67,23 +52,28 @@ public class CoordinateTest {
     void 직선인_경우_두_점_사이_거리를_계산해서_출력한다() {
         String coordinateString = "(0,3)-(5,7)";
         isValidCoordinateString(coordinateString);
-
-        coordinateString = removeAllBrackets(coordinateString);
         Coordinates coordinates = new Coordinates(coordinateString);
-        assertThat(coordinates.getDistance()).isEqualTo(41);
+        assertThat(coordinates.getDistance()).isEqualTo(6.403, offset(0.00099));
     }
 
-    private boolean isValidRange(int coordinate) {
-        if (coordinate >= 0 && coordinate <= 24) {
-            return true;
-        }
-        throw new IllegalArgumentException("좌표값은 0 ~ 24 사이의 값이어야 합니다.");
+    @Test
+    void 좌표값을_네_개_입력한_경우_사각형인지_검사한다() {
+        String coordinateString = "(0,3)-(5,7)-(0,7)-(5,3)";
 
+        isValidCoordinateString(coordinateString);
+        Coordinates coordinates = new Coordinates(coordinateString);
+        assertThat(coordinates.isRectangle()).isTrue();
     }
 
-    private String removeAllBrackets(String string) {
-        return string.replaceAll("[(]", "").replaceAll("[)]", "");
+    @Test
+    void 사각형_이라면_넓이를_출력한다() {
+        String coordinateString = "(0,3)-(5,7)-(0,7)-(5,3)";
+
+        isValidCoordinateString(coordinateString);
+        Coordinates coordinates = new Coordinates(coordinateString);
+        assertThat(coordinates.getRectangleArea()).isEqualTo(20);
     }
+
 
     private boolean isValidCoordinateString(String coordinateString) {
         if (coordinateString.contains("(") && coordinateString.contains(")") && coordinateString.contains(",")) {
