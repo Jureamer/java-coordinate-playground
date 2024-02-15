@@ -1,5 +1,11 @@
 package coordinate;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import static java.lang.Math.pow;
+import static java.lang.Math.sqrt;
+
 public class Point {
     public Object getX;
     double x, y;
@@ -16,5 +22,6 @@ public class Point {
     public double getY() {
         return this.y;
     }
+
 
 }
